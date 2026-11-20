@@ -13,9 +13,11 @@ tools/wdbg.js
 tools/blk.js
 tools/ec.js
 tools/ec2.js
-tools/shot.js
 
 # системный мусор
 .DS_Store
 Thumbs.db
 *.log
+
+# исходники атласов DroneFlames (скачиваются tools/fetch-df.sh)
+tools/df/

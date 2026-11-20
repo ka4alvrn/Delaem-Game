@@ -28,6 +28,7 @@
           const sp = (SPEED[u.type] || 30) * 1.0;
           u.x += dx / d * sp * dt;
           u.y += dy / d * sp * dt;
+          u.hdg = Math.atan2(dy, dx);
         }
       }
       // бой

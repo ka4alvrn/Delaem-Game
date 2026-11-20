@@ -33,6 +33,7 @@
     Audio.muted = !App2.settings.sound;
 
     Render.init(document.getElementById('map'));
+    Render.loadSprites();
     Render.mode = 'political';
     UI.init();
     UI.buildStart();
