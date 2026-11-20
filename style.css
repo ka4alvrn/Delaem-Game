@@ -277,6 +277,9 @@ body.panel-open #topbar .top-right{opacity:0;pointer-events:none;transition:opac
   .page-btn svg{width:16px;height:16px}
 }
 @media (max-width:640px){
+  .tagline{font-size:10.5px;letter-spacing:.16em}
+  #start h1{font-size:26px;letter-spacing:.1em}
+  .logo-mark{width:54px;height:54px;margin-bottom:6px}
   .icon-btn{width:34px;height:34px;font-size:14px;border-radius:10px}
   .tool-btn{width:50px;height:50px;gap:2px}
   .tool-btn svg{width:20px;height:20px}

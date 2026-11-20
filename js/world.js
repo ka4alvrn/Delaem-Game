@@ -96,7 +96,7 @@
         pop: bs.pop, gdp: bs.gdp, army: bs.army, tech: bs.tech, stab: bs.stab,
         nukes: bs.nukes, ideo: 'aut', bloc: 'neutral', overlord: null,
         polys: [], area: c.a, cen: c.c, bb: c.b.slice(), capital: null,
-        alive: true, wars: [], mob: 0.35, aggr: 0.3, warSupport: 50, dead: 0,
+        alive: true, wars: [], pacts: [], goal: null, mob: 0.35, aggr: 0.3, warSupport: 50, dead: 0,
       };
       st.ideo = World.ideoOf(c.i, eraIdx, st);
       st.bloc = World.blocOf(c.i, eraIdx);
