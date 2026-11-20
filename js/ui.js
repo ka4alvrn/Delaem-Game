@@ -169,11 +169,32 @@
     if (!st || !st.alive) return;
     App.sel = id;
     UI.el.country.classList.add('open');
+    if (UI.el.ticker) UI.el.ticker.classList.add('hidden');
     UI.renderCountry();
+    UI.ensureVisible(st);
+  };
+
+  UI.ensureVisible = function (st) {
+    try {
+      const H = Render.H || window.innerHeight;
+      const panelH = UI.el.country.offsetHeight || H * 0.5;
+      const barH = document.documentElement.style.getPropertyValue('--bar-h');
+      const topLimit = H - panelH - (parseFloat(barH) || 150);
+      if (topLimit < 120) return;
+      const cen = st.capital || st.cen;
+      if (!cen) return;
+      const sy = (cen[1] - App.cam.y) * App.cam.z + H / 2;
+      if (sy > topLimit - 30 || sy < 90) {
+        const target = Math.max(90, topLimit * 0.55);
+        App.cam.y += (sy - target) / App.cam.z;
+        Render.clampCam();
+      }
+    } catch (e) { }
   };
 
   UI.closeCountry = function () {
     UI.el.country.classList.remove('open');
+    if (UI.el.ticker) UI.el.ticker.classList.remove('hidden');
   };
 
   UI.refreshCountry = function () {
@@ -217,8 +238,8 @@
           ${st.nukes > 0 ? '<span class="chip nuke">☢ ядерная держава</span>' : ''}
         </div>
         <div class="actions">
-          <button class="act" data-act="focus">🎯 Приблизить</button>
-          <button class="act" data-act="random_event">🎲 Случайное событие</button>
+          <button class="act" data-act="focus">◎ Приблизить</button>
+          <button class="act" data-act="random_event">✦ Случайное событие</button>
           <button class="act danger" data-act="nuke_self">☢ Ядерный удар</button>
         </div>
         <div class="neighbors"><b>Соседи:</b> ${UI.neighborChips(st)}</div>`;
@@ -236,16 +257,16 @@
           ${UI.stepper('Армия', 'army', [['−20%', -0.2], ['−10%', -0.1], ['+10%', 0.1], ['+20%', 0.2]])}
         </div>
         <div class="actions">
-          <button class="act" data-act="tech_up">🔬 +5 техники</button>
+          <button class="act" data-act="tech_up">⚗ +5 техники</button>
           <button class="act" data-act="nuke_add">☢ +10 боеголовок</button>
           <button class="act" data-act="rename">✏️ Переименовать</button>
-          <button class="act" data-act="color">🎨 Цвет</button>
+          <button class="act" data-act="color">◑ Цвет</button>
         </div>
         <div class="section-title danger-title">Опасные действия</div>
         <div class="actions">
-          <button class="act danger" data-act="revolt">🔥 Переворот</button>
-          <button class="act danger" data-act="civilwar">💥 Гражданская война</button>
-          <button class="act danger" data-act="release" ${!st.overlord ? 'disabled' : ''}>🕊️ Независимость</button>
+          <button class="act danger" data-act="revolt">▲ Переворот</button>
+          <button class="act danger" data-act="civilwar">✹ Гражданская война</button>
+          <button class="act danger" data-act="release" ${!st.overlord ? 'disabled' : ''}>⚑ Независимость</button>
         </div>`;
     } else {
       const warsHtml = wars.length ? wars.map(w => {
@@ -262,16 +283,24 @@
         <div class="section-title">Дипломатия</div>
         <div class="actions">
           <button class="act" data-act="declare">⚔️ Объявить войну</button>
-          <button class="act" data-act="annex_target">🏴 Поглотить соседа</button>
-          <button class="act" data-act="annex_self">🔗 Присоединить к соседу</button>
-          <button class="act" data-act="vassal">🏳️ Сделать вассалом</button>
+          <button class="act" data-act="annex_target">▣ Поглотить соседа</button>
+          <button class="act" data-act="annex_self">⇄ Присоединить к соседу</button>
+          <button class="act" data-act="vassal">⚑ Сделать вассалом</button>
         </div>
         <div class="neighbors"><b>Соседи:</b> ${UI.neighborChips(st)}</div>`;
     }
 
-    UI.el.country.innerHTML = `
+    UI.flagBadge = function (st) {
+    const hex = (st.color || '#8899aa').replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16), g = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
+    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const code = (st.iso3 || st.iso2 || st.id || '??').toUpperCase().slice(0, 3);
+    return `<span class="flag-badge" style="background:${st.color};color:${lum > 0.6 ? '#0b1622' : '#f4f9ff'}">${code}</span>`;
+  };
+
+  UI.el.country.innerHTML = `
       <div class="panel-head" style="--c:${st.color}">
-        <div class="flag-box">${U.flag(st.iso2)}</div>
+        <div class="flag-box">${UI.flagBadge(st)}</div>
         <div class="head-txt">
           <div class="c-name">${U.esc(st.name)}</div>
           <div class="c-sub">${ideo.name} · ${bloc.name}</div>
@@ -393,13 +422,13 @@
     UI.modal(`
       <div class="menu-grid">
         <button class="menu-item" data-m="resume">▶ Продолжить</button>
-        <button class="menu-item" data-m="save">💾 Сохранить</button>
-        <button class="menu-item" data-m="load">📂 Загрузить</button>
-        <button class="menu-item" data-m="maps">🗺 Карта мира</button>
-        <button class="menu-item" data-m="log">📜 История событий</button>
-        <button class="menu-item" data-m="help">❓ Как играть</button>
+        <button class="menu-item" data-m="save">⤓ Сохранить</button>
+        <button class="menu-item" data-m="load">↺ Загрузить</button>
+        <button class="menu-item" data-m="maps">◧ Карта мира</button>
+        <button class="menu-item" data-m="log">≡ История событий</button>
+        <button class="menu-item" data-m="help">? Как играть</button>
         <button class="menu-item" data-m="settings">⚙️ Настройки</button>
-        <button class="menu-item danger" data-m="start">🏠 В главное меню</button>
+        <button class="menu-item danger" data-m="start">← В главное меню</button>
       </div>
       <div class="menu-foot">
         <label class="tgl"><input type="checkbox" id="tgl-hist" ${s.historical ? 'checked' : ''}> Исторические границы</label>
@@ -494,8 +523,8 @@
 
   UI.saveDialog = function () {
     UI.modal(`<div class="menu-grid">
-      ${[1, 2, 3].map(i => `<button class="menu-item" data-slot="${i}">💾 Слот ${i} <em>${UI.slotInfo('earth_save_' + i)}</em></button>`).join('')}
-      </div><div class="modal-actions"><button class="btn primary" data-auto>💾 Быстрое сохранение</button></div>`,
+      ${[1, 2, 3].map(i => `<button class="menu-item" data-slot="${i}">⤓ Слот ${i} <em>${UI.slotInfo('earth_save_' + i)}</em></button>`).join('')}
+      </div><div class="modal-actions"><button class="btn primary" data-auto>⤓ Быстрое сохранение</button></div>`,
       { title: 'Сохранить игру', onOpen: body => {
         body.querySelectorAll('[data-slot]').forEach(b => b.onclick = () => { UI.doSave('earth_save_' + b.dataset.slot); UI.closeModal(); });
         body.querySelector('[data-auto]').onclick = () => { UI.doSave('earth_save_auto'); UI.closeModal(); };
@@ -516,7 +545,7 @@
   UI.loadDialog = function () {
     UI.modal(`<div class="menu-grid">
       ${['earth_save_auto', 'earth_save_1', 'earth_save_2', 'earth_save_3'].map(k =>
-        `<button class="menu-item" data-key="${k}">📂 ${k.replace('earth_save_', '').replace('auto', 'Автосохранение')} <em>${UI.slotInfo(k)}</em></button>`).join('')}
+        `<button class="menu-item" data-key="${k}">⤓ ${k.replace('earth_save_', '').replace('auto', 'Автосохранение')} <em>${UI.slotInfo(k)}</em></button>`).join('')}
       </div>`, { title: 'Загрузить игру', onOpen: body => {
         body.querySelectorAll('[data-key]').forEach(b => b.onclick = () => {
           const raw = localStorage.getItem(b.dataset.key);
@@ -544,8 +573,8 @@
     UI.modal(`<p class="modal-text">Наступает <b>${year}</b> год. Мировые границы должны быть перестроены по историческим данным.</p>
       <p class="modal-text muted">Ваши завоевания и изменения границ будут сброшены, если вы примените историю. Статистика государств сохранится.</p>
       <div class="modal-actions column">
-        <button class="btn primary" data-a="apply">🕰️ Применить историю (${year})</button>
-        <button class="btn ghost" data-a="keep">🗺 Оставить мои границы</button>
+        <button class="btn primary" data-a="apply">↻ Применить историю (${year})</button>
+        <button class="btn ghost" data-a="keep">◇ Оставить мои границы</button>
       </div>`, { title: 'Смена эпохи', onOpen: body => {
       body.querySelector('[data-a="apply"]').onclick = () => {
         UI.closeModal(); Sim.paused = false;
@@ -633,7 +662,7 @@
     World.log = App.world.log;
     World.addLog('🌍 Мир ' + year + ' года создан. Вы — бог-наблюдатель.', 'era', true);
     Render.buildCache();
-    Render.focus(2600, -5200, window.innerWidth < 520 ? 0.075 : 0.062);
+    Render.focus(1750, -5180, window.innerWidth < 520 ? 0.085 : 0.07);
     Sim.setSpeed(1);
     UI.buildSpeeds();
     UI.closeCountry();

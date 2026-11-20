@@ -214,14 +214,21 @@
       for (const p of st.polys) if (p.path) ctx.fill(p.path, 'evenodd');
     }
 
-    // война: пульсирующая обводка
+    // война: пульсирующие метки в столицах воюющих стран
     const t = Render.time;
     for (const st of w.stateList) {
       if (!st.alive || !st.wars || !st.wars.length) continue;
-      if (st.bb[2] < vis[0] || st.bb[0] > vis[2] || st.bb[3] < vis[1] || st.bb[1] > vis[3]) continue;
-      ctx.strokeStyle = 'rgba(255,80,60,' + (0.35 + 0.25 * Math.sin(t * 4 + st.cen[0])) + ')';
-      ctx.lineWidth = lw * 2.6;
-      for (const p of st.polys) if (p.path) ctx.stroke(p.path);
+      const pos = st.capital || st.cen;
+      if (pos[0] < vis[0] || pos[0] > vis[2] || pos[1] < vis[1] || pos[1] > vis[3]) continue;
+      const pulse = 0.55 + 0.45 * Math.sin(t * 4 + st.cen[0] * 0.01);
+      const r = ((1 / lw) > 0.12 ? 9 : 7) * lw;
+      ctx.beginPath();
+      ctx.arc(pos[0], pos[1], r, 0, TAU);
+      ctx.fillStyle = 'rgba(255,80,60,' + (0.22 + 0.3 * pulse) + ')';
+      ctx.fill();
+      ctx.lineWidth = lw * 1.2;
+      ctx.strokeStyle = 'rgba(255,120,90,' + (0.5 + 0.4 * pulse) + ')';
+      ctx.stroke();
     }
 
     // выбор: анимированная рамка
@@ -292,7 +299,7 @@
     const W = Render.W, H = Render.H;
     const boxes = [];
     const z = cam.z;
-    const showSmall = z > 0.22;
+    const minPx = z > 0.25 ? 90 : z > 0.13 ? 260 : z > 0.06 ? 700 : 2200;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const items = [];
     for (const st of w.stateList) {
@@ -300,14 +307,13 @@
       const [sx, sy] = Render.toScreen(st.cen[0], st.cen[1]);
       if (sx < -80 || sy < -40 || sx > W + 80 || sy > H + 40) continue;
       const pxArea = (st.area / 1.23) * z * z;
-      if (pxArea < 620 && !(st.id === App.sel)) continue;
+      if (pxArea < minPx && st.id !== App.sel) continue;
       items.push({ st, sx, sy, w: pxArea });
     }
     items.sort((a, b) => b.w - a.w);
     for (const it of items) {
       const st = it.st;
-      const big = it.w > 2600;
-      if (!big && !showSmall && st.id !== App.sel) continue;
+      const big = it.w > minPx * 2.4;
       let fs = U.clamp(8.5 + 15 * z + Math.min(4, Math.sqrt(it.w) / 26), 8.5, 20);
       if (st.id === App.sel) fs = Math.max(fs, 13);
       const name = st.name;

@@ -45,10 +45,10 @@
 
   // ---------- страницы ----------
   const PAGES = [
-    { id: 'state', name: 'Государство', icon: 'flag' },
+    { id: 'state', name: 'Гос-во', full: 'Государство', icon: 'flag' },
     { id: 'army', name: 'Армия', icon: 'tank' },
-    { id: 'doom', name: 'Разрушение', icon: 'bomb' },
-    { id: 'build', name: 'Созидание', icon: 'city' },
+    { id: 'doom', name: 'Разруш.', full: 'Разрушение', icon: 'bomb' },
+    { id: 'build', name: 'Создать', full: 'Созидание', icon: 'city' },
     { id: 'world', name: 'Мир', icon: 'sparkle' },
   ];
 
@@ -59,32 +59,32 @@
   T('inspect', { name: 'Осмотр', icon: 'inspect', page: 'state', kind: 'inspect', hint: 'Нажмите на страну, чтобы открыть карточку' });
 
   // --- государство
-  T('ideo', { name: 'Идеология', icon: 'scale', page: 'state', kind: 'panel', country: true, hint: 'Сменить строй страны' });
-  T('stability', { name: 'Стабильность', icon: 'shield', page: 'state', kind: 'panel', country: true });
-  T('economy', { name: 'Экономика', icon: 'coin', page: 'state', kind: 'panel', country: true });
+  T('ideo', { name: 'Строй', icon: 'scale', page: 'state', kind: 'panel', country: true, hint: 'Сменить строй страны' });
+  T('stability', { name: 'Стаб.', icon: 'shield', page: 'state', kind: 'panel', country: true });
+  T('economy', { name: 'Эконом', icon: 'coin', page: 'state', kind: 'panel', country: true });
   T('military', { name: 'Армия', icon: 'sword', page: 'state', kind: 'panel', country: true });
-  T('diplomacy', { name: 'Дипломатия', icon: 'dove', page: 'state', kind: 'panel', country: true });
-  T('territory', { name: 'Территория', icon: 'merge', page: 'state', kind: 'panel', country: true });
+  T('diplomacy', { name: 'Дипло', icon: 'dove', page: 'state', kind: 'panel', country: true });
+  T('territory', { name: 'Террит', icon: 'merge', page: 'state', kind: 'panel', country: true });
 
   // --- армия
   T('spawn_inf', { name: 'Пехота', icon: 'inf', page: 'army', kind: 'spawn', unit: 'inf', hint: 'Разместить пехотную дивизию' });
   T('spawn_tank', { name: 'Танки', icon: 'tank', page: 'army', kind: 'spawn', unit: 'tank' });
-  T('spawn_art', { name: 'Артиллерия', icon: 'target', page: 'army', kind: 'spawn', unit: 'art' });
+  T('spawn_art', { name: 'Арта', icon: 'target', page: 'army', kind: 'spawn', unit: 'art' });
   T('spawn_drone', { name: 'Дрон', icon: 'drone', page: 'army', kind: 'spawn', unit: 'drone' });
-  T('spawn_jet', { name: 'Авиация', icon: 'jet', page: 'army', kind: 'spawn', unit: 'jet' });
+  T('spawn_jet', { name: 'Авиа', icon: 'jet', page: 'army', kind: 'spawn', unit: 'jet' });
   T('spawn_ship', { name: 'Флот', icon: 'ship', page: 'army', kind: 'spawn', unit: 'ship' });
   T('spawn_sam', { name: 'ПВО', icon: 'target', page: 'army', kind: 'spawn', unit: 'sam' });
-  T('spawn_nuke', { name: 'Ядерный заряд', icon: 'nuke', page: 'army', kind: 'spawn', unit: 'nuke' });
+  T('spawn_nuke', { name: 'Бомба', icon: 'nuke', page: 'army', kind: 'spawn', unit: 'nuke' });
   T('spawn_base', { name: 'База', icon: 'base', page: 'army', kind: 'spawn', unit: 'base' });
 
   // --- разрушение
   T('boom', { name: 'Взрыв', icon: 'bomb', page: 'doom', kind: 'strike', power: 1.2, hint: 'Точечный взрыв' });
-  T('artstrike', { name: 'Артобстрел', icon: 'art', page: 'doom', kind: 'strike', mode: 'art' });
+  T('artstrike', { name: 'Артудар', icon: 'art', page: 'doom', kind: 'strike', mode: 'art' });
   T('airstrike', { name: 'Авиаудар', icon: 'jet', page: 'doom', kind: 'strike', mode: 'air' });
   T('missile', { name: 'Ракета', icon: 'missile', page: 'doom', kind: 'strike', mode: 'missile' });
-  T('nuke', { name: 'Ядерный удар', icon: 'nuke', page: 'doom', kind: 'strike', mode: 'nuke' });
-  T('meteor', { name: 'Метеорит', icon: 'meteor', page: 'doom', kind: 'strike', mode: 'meteor' });
-  T('quake', { name: 'Землетрясение', icon: 'quake', page: 'doom', kind: 'strike', mode: 'quake' });
+  T('nuke', { name: 'Ядерка', icon: 'nuke', page: 'doom', kind: 'strike', mode: 'nuke' });
+  T('meteor', { name: 'Метеор', icon: 'meteor', page: 'doom', kind: 'strike', mode: 'meteor' });
+  T('quake', { name: 'Земля', icon: 'quake', page: 'doom', kind: 'strike', mode: 'quake' });
   T('tsunami', { name: 'Цунами', icon: 'wave', page: 'doom', kind: 'strike', mode: 'tsunami' });
   T('plague', { name: 'Чума', icon: 'plague', page: 'doom', kind: 'strike', mode: 'plague' });
   T('fire', { name: 'Пожар', icon: 'fire', page: 'doom', kind: 'strike', mode: 'fire' });
@@ -95,14 +95,14 @@
   T('fort', { name: 'Крепость', icon: 'base', page: 'build', kind: 'strike', mode: 'fort' });
   T('factory', { name: 'Завод', icon: 'factory', page: 'build', kind: 'strike', mode: 'factory' });
   T('heal', { name: 'Очистить', icon: 'drop', page: 'build', kind: 'strike', mode: 'heal', hint: 'Убрать пожары, чуму и радиацию' });
-  T('boom_econ', { name: 'Процветание', icon: 'money', page: 'build', kind: 'strike', mode: 'prosperity' });
+  T('boom_econ', { name: 'Достаток', icon: 'money', page: 'build', kind: 'strike', mode: 'prosperity' });
 
   // --- мир
-  T('peace_all', { name: 'Мир во всём мире', icon: 'dove', page: 'world', kind: 'action', act: 'peaceAll' });
-  T('nuke_all', { name: 'Ядерный апокалипсис', icon: 'nuke', page: 'world', kind: 'action', act: 'nukeAll' });
+  T('peace_all', { name: 'Мир всем', icon: 'dove', page: 'world', kind: 'action', act: 'peaceAll' });
+  T('nuke_all', { name: 'Апокалипсис', icon: 'nuke', page: 'world', kind: 'action', act: 'nukeAll' });
   T('plague_all', { name: 'Пандемия', icon: 'plague', page: 'world', kind: 'action', act: 'plagueAll' });
   T('golden', { name: 'Золотой век', icon: 'sparkle', page: 'world', kind: 'action', act: 'goldenAge' });
-  T('reset', { name: 'Сброс мира', icon: 'cross', page: 'world', kind: 'action', act: 'resetWorld' });
+  T('reset', { name: 'Сброс', icon: 'cross', page: 'world', kind: 'action', act: 'resetWorld' });
 
   // ---------- утилиты урона ----------
   const Tools = {

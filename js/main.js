@@ -43,7 +43,7 @@
     if (window.ERA_DATA && window.ERA_DATA[1942]) {
       World.buildStates(1942);
       Render.buildCache();
-      Render.focus(2600, -5200, 0.062);
+      Render.focus(1750, -5180, 0.07);
       Sim.setSpeed(0);
     }
     document.getElementById('boot').classList.add('gone');
