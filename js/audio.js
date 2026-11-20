@@ -7,7 +7,7 @@
     try {
       Audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
       Audio.master = Audio.ctx.createGain();
-      Audio.master.gain.value = 0.5;
+      Audio.master.gain.value = 0.34;
       Audio.master.connect(Audio.ctx.destination);
     } catch (e) { console.warn('audio off', e); }
   };
@@ -59,6 +59,11 @@
     if (!Audio.ctx) Audio.init();
     if (!Audio.ctx) return;
     v = v == null ? 1 : v;
+    // защита от пулемётной очереди одинаковых звуков
+    const now = (window.performance && performance.now) ? performance.now() : Date.now();
+    Audio._last = Audio._last || {};
+    if (Audio._last[name] && now - Audio._last[name] < 75) return;
+    Audio._last[name] = now;
     try {
       switch (name) {
         case 'boom': noise(0.55, 220 + v * 200, 1, 0.5 * v); tone(90, 0.35, 'sine', 0.25 * v, 40); break;
@@ -82,7 +87,7 @@
 
   Audio.toggle = function () {
     Audio.muted = !Audio.muted;
-    if (Audio.master) Audio.master.gain.value = Audio.muted ? 0 : 0.5;
+    if (Audio.master) Audio.master.gain.value = Audio.muted ? 0 : 0.34;
     return Audio.muted;
   };
 
