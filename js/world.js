@@ -278,10 +278,16 @@
     const w = App.world;
     const st = w.states[id];
     if (!st) return [];
-    if (st.bloc === 'neutral') return [];
     const out = [];
+    // явные союзы (пакты) работают и для нейтральных
+    for (const pid of (st.pacts || [])) {
+      const o = w.states[pid];
+      if (o && o.alive && o.id !== id && !o.wars.length) out.push(pid);
+    }
+    if (st.bloc === 'neutral') return out.slice(0, 3);
     for (const o of Object.values(w.states)) {
       if (!o.alive || o.id === id || o.overlord || o.bloc !== st.bloc) continue;
+      if (out.indexOf(o.id) >= 0) continue;
       if (o.wars.length) continue; // уже воюет — не ввязывается
       if ((World.adj.get(id) || new Set()).has(o.id) || o.area > 60000) out.push(o.id);
     }
@@ -365,7 +371,7 @@
     v.alive = false;
     v.pop = 0; v.gdp = 0; v.army = 0;
     w.stats.annex++;
-    World.addLog('🏴 ' + win.name + ' аннексирует ' + v.name, 'annex');
+    World.addLog(puppet ? ('🏴 ' + v.name + ' → ' + win.name + ' (вассал)') : ('🏴 ' + v.name + ' → ' + win.name + ' (аннексия)'), 'annex');
     World.rebuildGeometry();
     if (App.sel === victimId) { App.sel = winnerId; U.emit('select', winnerId); }
     U.emit('annex', { victim: victimId, winner: winnerId });
@@ -411,7 +417,7 @@
     const states = {};
     for (const st of Object.values(w.states)) {
       if (!st.alive) continue;
-      states[st.id] = [st.pop, st.gdp, st.army, st.tech, st.stab, st.nukes, st.ideo, st.bloc, st.overlord, st.name];
+      states[st.id] = [st.pop, st.gdp, st.army, st.tech, st.stab, st.nukes, st.ideo, st.bloc, st.overlord, st.name, st.mob, st.pacts || []];
     }
     return {
       v: 2, eraYear: w.eraYear, day: w.day, startYear: w.startYear,
@@ -432,6 +438,8 @@
       const st = w.states[id];
       if (!st) continue;
       [st.pop, st.gdp, st.army, st.tech, st.stab, st.nukes, st.ideo, st.bloc, st.overlord, st.name] = a;
+      if (a[10] != null) st.mob = a[10];
+      if (a[11]) st.pacts = a[11];
       st.alive = true;
     }
     if (data.owner) {

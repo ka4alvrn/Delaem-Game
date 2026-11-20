@@ -4,14 +4,14 @@ global.document={createElement:()=>({width:0,height:0,getContext:()=>({fillRect(
 global.window=global; global.Path2D=class{moveTo(){}lineTo(){}closePath(){}}; global.addEventListener=()=>{};
 global.localStorage={getItem:()=>null,setItem(){}}; global.performance=global.performance||{now:()=>Date.now()};
 const root=path.join(__dirname,'..');
-for (const f of ['js/data/map_1942.js','js/data/countries.js','js/data/politics.js','js/core.js','js/fx.js','js/render.js','js/world.js','js/sim.js','js/units.js']) vm.runInThisContext(fs.readFileSync(path.join(root,f),'utf8'));
+for (const f of ['js/data/map_1942.js','js/data/countries.js','js/data/politics.js','js/core.js','js/fx.js','js/render.js','js/world.js','js/sim.js','js/units.js','js/ai.js']) vm.runInThisContext(fs.readFileSync(path.join(root,f),'utf8'));
 World.buildStates(1942);
 Render.buildCache();
 let t0=Date.now();
 const years=+process.argv[2]||30;
 const startPop=()=>World.stateList.reduce((s,x)=>s+x.pop,0);
 for (let y=0;y<years;y++){
-  for(let d=0;d<365;d++){ App.world.day++; Sim.economy(1); Sim.wars(); Sim.zones(); if(App.world.day%7===0)Sim.randomEvent(); if(App.world.day%20===0)Sim.ai(); }
+  for(let d=0;d<365;d++){ App.world.day++; Sim.economy(1); Sim.wars(); Sim.zones(); if(App.world.day%7===0)Sim.randomEvent(); if(App.world.day%7===0)Sim.warAI(); if(App.world.day%20===0)Sim.ai(); }
   if (y%5===4) {
     const w=App.world;
     const top=World.stateList.slice().sort((a,b)=>b.pop-a.pop).slice(0,4).map(s=>s.name+'('+s.pop.toFixed(0)+')').join(' ');

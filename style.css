@@ -99,6 +99,7 @@ button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer
 .flag-none{opacity:.4}
 .head-txt{flex:1;min-width:0}
 .c-name{font-size:17px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-note{margin-top:2px;font-size:11px;font-weight:600;color:#8fb4d6;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
 .c-sub{font-size:11px;color:var(--muted)}
 .icon-btn.close{width:32px;height:32px;font-size:14px}
 .panel-tabs{display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--stroke)}

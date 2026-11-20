@@ -88,6 +88,15 @@ const STEPS = (process.env.STEPS || 'start,play').split(',');
         console.log(JSON.stringify({ cam: [Math.round(c.x), Math.round(c.y), +c.z.toFixed(2)], min: +Render.minZoom().toFixed(3), berlin: st.capital, cen: st.cen.map(Math.round), pick: (Render.pick(c.x, c.y) || '-'), col: Render.stateColor(st), cols: [...document.querySelectorAll('.c-name')].length }));
       }
       if (s.startsWith('zoom:')) Render.focus(App.cam.x, App.cam.y, +s.split(':')[1]);
+      if (s.startsWith('sim:')) {
+        const n = +s.split(':')[1];
+        const t0 = performance.now();
+        const hist = App.settings.historical;
+        App.settings.historical = false;
+        for (let i = 0; i < n; i++) Sim.step();
+        App.settings.historical = hist;
+        console.log('симуляция ' + n + ' дней за ' + Math.round(performance.now() - t0) + ' мс, войн ' + App.world.wars.length + ', стран ' + World.stateList.length + ', юнитов ' + App.world.units.length);
+      }
       if (s === 'deselect') { App.sel = null; if (window.UI) { UI.closeCountry(); UI.hideTapHint(); } }
     }, step).catch(e => logs.push('EVAL ERR ' + step + ': ' + e.message));
     await new Promise(r => setTimeout(r, step === 'play' ? 3000 : step === 'era' ? 1500 : 800));
