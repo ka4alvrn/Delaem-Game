@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#071019">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Земля 1942 — песочница-стратегия: станьте богом-наблюдателем и перепишите историю мира с 1942 года до наших дней.">
+<title>Земля 1942 — песочница истории</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="boot"><div class="boot-inner"><div class="boot-logo">ЗЕМЛЯ 1942</div><div class="boot-bar"><i></i></div><div class="boot-txt">Загрузка мира…</div></div></div>
+
+<canvas id="map"></canvas>
+
+<!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+<div id="topbar">
+  <button id="btn-menu" class="icon-btn" title="Меню">☰</button>
+  <div id="clock">
+    <div id="date">1 января 1942</div>
+    <div id="era">Вторая мировая · эпоха 1/7</div>
+  </div>
+  <div id="speeds"></div>
+  <div class="top-right">
+    <button id="btn-focus" class="icon-btn" title="Центрировать">◎</button>
+    <button id="btn-log" class="icon-btn" title="История">≡</button>
+    <button id="btn-maps" class="icon-btn" title="Режим карты">◧</button>
+  </div>
+</div>
+
+<div id="ticker"></div>
+
+<!-- КАРТОЧКА СТРАНЫ -->
+<div id="country" class="panel"></div>
+
+<!-- НИЖНЯЯ ПАНЕЛЬ -->
+<div id="bottom">
+  <div id="minimap-box"><canvas id="minimap" width="240" height="149"></canvas><button id="btn-mini" title="Скрыть мини-карту">–</button></div>
+  <div id="tool-pages"></div>
+  <div id="tool-grid"></div>
+</div>
+
+<div id="toasts"></div>
+<div id="modal-root"></div>
+
+<!-- СТАРТОВЫЙ ЭКРАН -->
+<div id="start">
+  <div class="start-bg"></div>
+  <div class="start-inner">
+    <div class="start-head">
+      <div class="logo-mark">
+        <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="26" stroke="currentColor" stroke-width="2" opacity=".5"/><path d="M6 32h52M32 6c9 8 9 44 0 52M32 6c-9 8-9 44 0 52" stroke="currentColor" stroke-width="1.4" opacity=".65"/><circle cx="32" cy="32" r="5" fill="currentColor"/></svg>
+      </div>
+      <h1>ЗЕМЛЯ <span>1942</span></h1>
+      <p class="tagline">Песочница истории · бог-наблюдатель</p>
+      <p class="intro">1942 год. Мир в огне. У вас есть власть менять границы, экономику, идеологии и судьбы народов — от Второй мировой до наших дней.</p>
+    </div>
+    <div class="era-label">Выберите начало игры</div>
+    <div id="era-cards"></div>
+    <div class="start-actions">
+      <button id="start-play" class="btn primary big">▶ Начать игру</button>
+      <button id="start-continue" class="btn ghost">▶ Продолжить</button>
+    </div>
+    <div class="start-foot">
+      <button id="start-help" class="link-btn">Как играть</button>
+      <span>·</span>
+      <button id="start-settings" class="link-btn">Настройки</button>
+      <span>·</span>
+      <span class="muted">v1.0</span>
+    </div>
+  </div>
+</div>
+
+<script src="js/data/map_1942.js"></script>
+<script src="js/data/countries.js"></script>
+<script src="js/data/politics.js"></script>
+<script src="js/core.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/render.js"></script>
+<script src="js/world.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/units.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
