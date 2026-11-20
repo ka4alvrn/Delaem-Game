@@ -243,7 +243,8 @@
       ctx.restore();
     }
 
-    // юниты
+    // столицы и юниты
+    Render.drawCapitals(ctx, vis, cam.z);
     Render.drawUnits(ctx, cam, vis, lw);
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -310,6 +311,43 @@
       ctx.fill();
       ctx.drawImage(it.im, -bw / 2, -bh, bw, bh);
       ctx.restore();
+    }
+  };
+
+  // столицы: маленькие городки из спрайтов домов
+  Render.drawCapitals = function (ctx, vis, z) {
+    const w = App.world;
+    if (App.settings && App.settings.towns === false) return;
+    const sets = Render.townImgs || {};
+    if (!sets.west) return;
+    const sz = 118 * z;
+    if (sz < 9) return;
+    try { ctx.imageSmoothingEnabled = false; } catch (e) { }
+    for (const st of w.stateList) {
+      if (!st.alive) continue;
+      const pos = st.capital || st.cen;
+      if (!pos) continue;
+      if (pos[0] < vis[0] - 60 || pos[0] > vis[2] + 60 || pos[1] < vis[1] - 60 || pos[1] > vis[3] + 60) continue;
+      const set = sets[Render.townSetFor(st)] || sets.west;
+      if (!set.length) continue;
+      const seed = (st.cen[0] | 0) * 31 + (st.cen[1] | 0);
+      const n = st.area > 60000 ? 3 : st.area > 18000 ? 2 : 1;
+      const big = st.capital && st.area > 25000;
+      const posOff = [[0, 0], [0.55, -0.28], [-0.5, 0.22]];
+      for (let i = 0; i < n; i++) {
+        const it = set[Math.abs(seed + i * 5) % set.length];
+        if (!it || !it.im.complete || !it.im.naturalWidth) continue;
+        const k = (big ? 1 : 0.78) * (i === 0 ? 1 : 0.8);
+        const bw = sz * 0.5 * k * (it.w / 26) / z, bh = sz * 0.5 * k * (it.h / 26) / z;
+        const px = pos[0] + posOff[i][0] * sz / z, py = pos[1] + posOff[i][1] * sz / z;
+        if (sz > 18) {
+          ctx.beginPath();
+          ctx.ellipse(px, py, bw * 0.6, bh * 0.26, 0, 0, TAU);
+          ctx.fillStyle = 'rgba(0,0,0,.16)';
+          ctx.fill();
+        }
+        ctx.drawImage(it.im, px - bw / 2, py - bh, bw, bh);
+      }
     }
   };
 

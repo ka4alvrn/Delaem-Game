@@ -19,7 +19,7 @@
 
   function defaultSettings() {
     return {
-      historical: true, aiWars: true, events: true, labels: true, sound: true, shake: true, speed: 1,
+      historical: true, aiWars: true, events: true, labels: true, sound: true, shake: true, towns: true, speed: 1,
     };
   }
 

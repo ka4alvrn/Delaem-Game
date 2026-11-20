@@ -100,6 +100,6 @@
   U.emit = (name, data) => { (handlers[name] || []).forEach(fn => { try { fn(data); } catch (e) { console.warn(e); } }); };
 
   window.U = U;
-  const DEF_SETTINGS = { historical: true, aiWars: true, events: true, labels: true, sound: true, shake: true };
+  const DEF_SETTINGS = { historical: true, aiWars: true, events: true, labels: true, sound: true, shake: true, towns: true };
   window.App = Object.assign(window.App || {}, { settings: Object.assign({}, DEF_SETTINGS), DEF_SETTINGS, world: null, cam: { x: 0, y: 0, z: 0.35 }, tool: null, sel: null, running: true, speed: 1 });
 })();
