@@ -157,8 +157,8 @@
       if (!d) return;
       if (d.kind === 'inspect') {
         const st = Render.pick(wx, wy);
-        if (st) { App.sel = st.id; U.emit('select', st.id); UI.openCountry(st.id); }
-        else { App.sel = null; U.emit('select', null); UI.closeCountry(); }
+        if (!st) { App.sel = null; U.emit('select', null); UI.closeCountry(); UI.hideTapHint(); return; }
+        UI.tapCountry(st);
         return;
       }
       if (d.kind === 'spawn') return Tools.spawn(wx, wy, d.unit);

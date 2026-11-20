@@ -127,7 +127,10 @@
     Tools.list(page).forEach(t => {
       const b = U.el('button', 'tool-btn' + (Tools.active === t.id ? ' on' : ''));
       b.dataset.tool = t.id;
-      b.innerHTML = (ICONS[t.icon] || '') + '<span>' + t.name + '</span>';
+      const sd = (window.SPRITE_DATA || {})[t.unit || ''];
+      b.innerHTML = (sd && sd.icon && t.kind === 'spawn'
+        ? '<img class="tool-sprite" src="' + sd.icon + '" alt="" draggable="false">'
+        : (ICONS[t.icon] || '')) + '<span>' + t.name + '</span>';
       b.onclick = () => {
         if (t.kind === 'panel') {
           if (!App.sel) { UI.toast('Сначала выберите страну', 'warn'); UI.selectTool('inspect'); return; }
@@ -167,7 +170,44 @@
   };
 
   // ---------- карточка страны ----------
+  // Первое касание — только выделение, второе по той же стране — карточка
+  UI.tapCountry = function (st) {
+    const now = (window.performance && performance.now) ? performance.now() : Date.now();
+    const same = UI._tapId === st.id && now - (UI._tapAt || 0) < 1600;
+    UI._tapId = st.id;
+    UI._tapAt = now;
+    App.sel = st.id;
+    U.emit('select', st.id);
+    if (same) { UI.hideTapHint(); UI._tapId = null; UI.openCountry(st.id); return; }
+    UI.showTapHint(st);
+  };
+
+  UI.showTapHint = function (st) {
+    let el = U.q('#tap-hint');
+    if (!el) {
+      el = U.el('div', 'tap-hint');
+      el.id = 'tap-hint';
+      el.innerHTML = '<b></b><span>нажмите ещё раз</span>';
+      document.body.appendChild(el);
+    }
+    const cen = st.capital || st.cen;
+    const [sx, sy] = Render.toScreen(cen[0], cen[1]);
+    el.querySelector('b').textContent = st.name;
+    el.style.left = U.clamp(sx, 70, (Render.W || 390) - 70) + 'px';
+    el.style.top = Math.max(70, sy - 14) + 'px';
+    el.classList.add('show');
+    clearTimeout(UI._hintT);
+    UI._hintT = setTimeout(UI.hideTapHint, 1700);
+  };
+
+  UI.hideTapHint = function () {
+    const el = U.q('#tap-hint');
+    if (el) el.classList.remove('show');
+    clearTimeout(UI._hintT);
+  };
+
   UI.openCountry = function (id) {
+    UI.hideTapHint();
     const st = App.world.states[id];
     if (!st || !st.alive) return;
     App.sel = id;
