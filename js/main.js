@@ -19,7 +19,7 @@
 
   function defaultSettings() {
     return {
-      historical: true, aiWars: true, events: true, labels: true, sound: true, shake: true, speed: 1,
+      historical: true, aiWars: true, events: true, labels: true, sound: true, shake: true, towns: true, speed: 1,
     };
   }
 
@@ -33,6 +33,7 @@
     Audio.muted = !App2.settings.sound;
 
     Render.init(document.getElementById('map'));
+    Render.loadSprites();
     Render.mode = 'political';
     UI.init();
     UI.buildStart();

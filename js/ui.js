@@ -127,7 +127,10 @@
     Tools.list(page).forEach(t => {
       const b = U.el('button', 'tool-btn' + (Tools.active === t.id ? ' on' : ''));
       b.dataset.tool = t.id;
-      b.innerHTML = (ICONS[t.icon] || '') + '<span>' + t.name + '</span>';
+      const sd = (window.SPRITE_DATA || {})[t.unit || ''];
+      b.innerHTML = (sd && sd.icon && t.kind === 'spawn'
+        ? '<img class="tool-sprite" src="' + sd.icon + '" alt="" draggable="false">'
+        : (ICONS[t.icon] || '')) + '<span>' + t.name + '</span>';
       b.onclick = () => {
         if (t.kind === 'panel') {
           if (!App.sel) { UI.toast('Сначала выберите страну', 'warn'); UI.selectTool('inspect'); return; }
@@ -167,10 +170,54 @@
   };
 
   // ---------- карточка страны ----------
+  // Первое касание — только выделение, второе по той же стране — карточка
+  UI.tapCountry = function (st) {
+    const card = UI.el.country;
+    const cardOpen = !!(card && card.classList.contains('open'));
+    // карточка этой страны уже открыта — тап по карте ничего не меняет
+    if (cardOpen && UI.cardId === st.id) { UI.hideTapHint(); return; }
+    // тап по другой стране при открытой карточке — просто закрываем карточку
+    if (cardOpen) UI.closeCountry();
+    const now = (window.performance && performance.now) ? performance.now() : Date.now();
+    const same = UI._tapId === st.id && now - (UI._tapAt || 0) < 1600;
+    UI._tapId = st.id;
+    UI._tapAt = now;
+    App.sel = st.id;
+    U.emit('select', st.id);
+    if (same) { UI.hideTapHint(); UI._tapId = null; UI.openCountry(st.id); return; }
+    UI.showTapHint(st);
+  };
+
+  UI.showTapHint = function (st) {
+    let el = U.q('#tap-hint');
+    if (!el) {
+      el = U.el('div', 'tap-hint');
+      el.id = 'tap-hint';
+      el.innerHTML = '<b></b><span>нажмите ещё раз</span>';
+      document.body.appendChild(el);
+    }
+    const cen = st.capital || st.cen;
+    const [sx, sy] = Render.toScreen(cen[0], cen[1]);
+    el.querySelector('b').textContent = st.name;
+    el.style.left = U.clamp(sx, 70, (Render.W || 390) - 70) + 'px';
+    el.style.top = Math.max(70, sy - 14) + 'px';
+    el.classList.add('show');
+    clearTimeout(UI._hintT);
+    UI._hintT = setTimeout(UI.hideTapHint, 1700);
+  };
+
+  UI.hideTapHint = function () {
+    const el = U.q('#tap-hint');
+    if (el) el.classList.remove('show');
+    clearTimeout(UI._hintT);
+  };
+
   UI.openCountry = function (id) {
+    UI.hideTapHint();
     const st = App.world.states[id];
     if (!st || !st.alive) return;
     App.sel = id;
+    UI.cardId = id;
     UI.el.country.classList.add('open');
     if (UI.el.ticker) UI.el.ticker.classList.add('hidden');
     document.body.classList.add('panel-open');
@@ -197,6 +244,7 @@
   };
 
   UI.closeCountry = function () {
+    UI.cardId = null;
     UI.el.country.classList.remove('open');
     if (UI.el.ticker) UI.el.ticker.classList.remove('hidden');
     document.body.classList.remove('panel-open');
@@ -309,6 +357,7 @@
         <div class="head-txt">
           <div class="c-name">${U.esc(st.name)}</div>
           <div class="c-sub">${ideo.name} · ${bloc.name}</div>
+          ${(window.AI && AI.notes[st.id]) ? `<div class="c-note">${U.esc(AI.notes[st.id])}</div>` : ''}
         </div>
         <button class="icon-btn close" data-act="close">✕</button>
       </div>
@@ -483,6 +532,7 @@
       <div class="set-row"><label>Войны ИИ</label><button class="switch ${s.aiWars ? 'on' : ''}" data-s="aiWars"><i></i></button></div>
       <div class="set-row"><label>Случайные события</label><button class="switch ${s.events ? 'on' : ''}" data-s="events"><i></i></button></div>
       <div class="set-row"><label>Подписи стран</label><button class="switch ${s.labels ? 'on' : ''}" data-s="labels"><i></i></button></div>
+      <div class="set-row"><label>Города на карте</label><button class="switch ${s.towns !== false ? 'on' : ''}" data-s="towns"><i></i></button></div>
       <div class="set-row"><label>Мини-карта</label><button class="switch ${!UI.hiddenMini ? 'on' : ''}" data-s="minimap"><i></i></button></div>
       <div class="set-row"><label>Тряска экрана</label><button class="switch ${s.shake ? 'on' : ''}" data-s="shake"><i></i></button></div>
       <div class="about">Земля 1942 — песочница. Все исторические границы приблизительны и служат для игры.</div>`,
@@ -506,7 +556,7 @@
         <ul>
           <li>Один палец — перемещение карты</li>
           <li>Два пальца — масштаб</li>
-          <li>Тап по стране — карточка государства</li>
+          <li>Тап по стране — выделение, второй тап — карточка государства</li>
           <li>Мини-карта внизу справа — быстрый переход</li>
         </ul>
         <h4>Время</h4>

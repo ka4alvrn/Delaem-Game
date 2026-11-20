@@ -30,6 +30,7 @@
     Sim.wars(1);
     Sim.zones(1);
     if (w.day % 7 === 0) Sim.randomEvent();
+    if (w.day % 7 === 0) Sim.warAI();
     if (w.day % 20 === 0) Sim.ai();
     if (w.day % 5 === 0) Sim.checkEra();
     U.emit('day', w.day);
@@ -247,27 +248,14 @@
   };
 
   // ---------- ИИ ----------
+  // Подробная логика в js/ai.js: оценка угроз, выбор цели, союзы, мирные инициативы, фронты.
   Sim.ai = function () {
-    if (!App.settings.aiWars) return;
-    const w = App.world;
-    const cands = World.stateList.filter(s => s.alive && s.aggr > 0.42 && s.wars.length === 0 && s.area > 1500);
-    if (!cands.length) return;
-    const tries = Math.min(4, cands.length);
-    for (let k = 0; k < tries; k++) {
-      const st = U.pick(cands);
-      if (!st || st.wars.length || !st.alive) continue;
-      const nb = World.neighbors(st.id).map(id => w.states[id]).filter(s => s && s.alive && s.bloc !== st.bloc && s.id !== st.overlord);
-      if (!nb.length) continue;
-      const tgt = U.pick(nb);
-      const powerDiff = World.power(st) / (World.power(tgt) + 1);
-      let chance = 0.014 * st.aggr * (powerDiff > 1.4 ? 2.2 : powerDiff > 0.9 ? 1 : 0.2) * (w.wars.length >= 2 ? 0.3 : w.wars.length === 1 ? 0.7 : 1.25);
-      if (st.ideo === 'dem') chance *= 0.35;
-      if (w.year > 0 && w.eraIdx === 2) chance *= 1.2;
-      if (U.chance(chance)) {
-        World.declareWar(st.id, tgt.id);
-        st.aggr = Math.max(0.1, st.aggr - 0.12);
-      }
-    }
+    if (window.AI && AI.monthly) AI.monthly();
+    else if (!App.settings.aiWars) return;
+  };
+
+  Sim.warAI = function () {
+    if (window.AI && AI.weekly) AI.weekly();
   };
 
   // ---------- эпохи ----------

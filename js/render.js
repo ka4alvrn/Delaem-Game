@@ -28,7 +28,7 @@
 
   // ---- камера ----
   Render.minZoom = function () { return Math.min(Render.W / U.WM, Render.H / U.HM) * 0.98; };
-  Render.maxZoom = function () { return 2.6; };
+  Render.maxZoom = function () { return 1.4; };
   Render.toWorld = function (sx, sy) {
     const c = App.cam;
     return [(sx - Render.W / 2) / c.z + c.x, (sy - Render.H / 2) / c.z + c.y];
@@ -243,7 +243,8 @@
       ctx.restore();
     }
 
-    // юниты
+    // столицы и юниты
+    Render.drawCapitals(ctx, vis, cam.z);
     Render.drawUnits(ctx, cam, vis, lw);
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -263,15 +264,143 @@
     if (performance.now() - Render._lastMini > 400) { Render._lastMini = performance.now(); if (App.ui && App.ui.drawMinimap) App.ui.drawMinimap(); }
   };
 
+  // ---------- спрайты юнитов ----------
+  Render.imgs = {};
+  Render.loadSprites = function () {
+    const data = window.SPRITE_DATA || {};
+    for (const k of Object.keys(data)) {
+      if (!data[k] || !data[k].src) continue;
+      const im = new Image();
+      im.src = data[k].src;
+      Render.imgs[k] = im;
+    }
+    Render.townImgs = {};
+    for (const set of Object.keys(data.town || {})) {
+      Render.townImgs[set] = data.town[set].map(t => {
+        const im = new Image(); im.src = t.src;
+        return { im, w: t.w, h: t.h };
+      });
+    }
+  };
+
+  Render.townSetFor = function (st) {
+    if (!st) return 'west';
+    const reg = (st.reg || '') + ' ' + (st.name || '');
+    if (st.ideo === 'com') return 'east';
+    if (/Ази|Африк|Восточ|Ближн|Южн|Asia|Africa|Middle/i.test(reg)) return 'asia';
+    if (/СНГ|Россия|Украина|Беларус|Казах|Кавказ|Балт/i.test(reg)) return 'east';
+    return 'west';
+  };
+
+  Render.drawTown = function (ctx, u, st, z) {
+    const sets = Render.townImgs || {};
+    const set = sets[Render.townSetFor(st)] || sets.west;
+    if (!set || !set.length) return;
+    const sz = Math.min(120, Math.max(24, 120 * z)); // размер города на экране, px
+    const seed = (u.id || 1) * 7919;
+    const pos = [[-0.30, 0.06], [0.28, -0.10], [0.02, 0.30], [-0.04, -0.34]];
+    for (let i = 0; i < 3; i++) {
+      const it = set[(seed + i * 3) % set.length];
+      if (!it || !it.im.complete || !it.im.naturalWidth) continue;
+      const bw = sz * 0.5 * (it.w / 26) / z, bh = sz * 0.5 * (it.h / 26) / z;
+      ctx.save();
+      ctx.translate(pos[i][0] * sz / z, pos[i][1] * sz / z);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, bw * 0.6, bh * 0.26, 0, 0, TAU);
+      ctx.fillStyle = 'rgba(0,0,0,.18)';
+      ctx.fill();
+      ctx.drawImage(it.im, -bw / 2, -bh, bw, bh);
+      ctx.restore();
+    }
+  };
+
+  // столицы: маленькие городки из спрайтов домов
+  Render.drawCapitals = function (ctx, vis, z) {
+    const w = App.world;
+    if (App.settings && App.settings.towns === false) return;
+    const sets = Render.townImgs || {};
+    if (!sets.west) return;
+    const sz = 118 * z;
+    if (sz < 9) return;
+    try { ctx.imageSmoothingEnabled = false; } catch (e) { }
+    for (const st of w.stateList) {
+      if (!st.alive) continue;
+      const pos = st.capital || st.cen;
+      if (!pos) continue;
+      if (pos[0] < vis[0] - 60 || pos[0] > vis[2] + 60 || pos[1] < vis[1] - 60 || pos[1] > vis[3] + 60) continue;
+      const set = sets[Render.townSetFor(st)] || sets.west;
+      if (!set.length) continue;
+      const seed = (st.cen[0] | 0) * 31 + (st.cen[1] | 0);
+      const n = st.area > 60000 ? 3 : st.area > 18000 ? 2 : 1;
+      const big = st.capital && st.area > 25000;
+      const posOff = [[0, 0], [0.55, -0.28], [-0.5, 0.22]];
+      for (let i = 0; i < n; i++) {
+        const it = set[Math.abs(seed + i * 5) % set.length];
+        if (!it || !it.im.complete || !it.im.naturalWidth) continue;
+        const k = (big ? 1 : 0.78) * (i === 0 ? 1 : 0.8);
+        const bw = sz * 0.5 * k * (it.w / 26) / z, bh = sz * 0.5 * k * (it.h / 26) / z;
+        const px = pos[0] + posOff[i][0] * sz / z, py = pos[1] + posOff[i][1] * sz / z;
+        if (sz > 18) {
+          ctx.beginPath();
+          ctx.ellipse(px, py, bw * 0.6, bh * 0.26, 0, 0, TAU);
+          ctx.fillStyle = 'rgba(0,0,0,.16)';
+          ctx.fill();
+        }
+        ctx.drawImage(it.im, px - bw / 2, py - bh, bw, bh);
+      }
+    }
+  };
+
   Render.drawUnits = function (ctx, cam, vis, lw) {
     const w = App.world;
     if (!w) return;
+    const data = window.SPRITE_DATA || {};
+    const z = cam.z;
+    ctx.save();
+    try { ctx.imageSmoothingEnabled = false; } catch (e) { }
     for (const u of w.units) {
       if (u.x < vis[0] - 200 || u.x > vis[2] + 200 || u.y < vis[1] - 200 || u.y > vis[3] + 200) continue;
       const st = w.states[u.owner];
       const col = st ? st.color : '#888';
-      Render.icon(ctx, u.x, u.y, 1 / cam.z * 1.2, u.type, col, u.owner === App.sel);
+      if (u.type === 'city') {
+        ctx.save(); ctx.translate(u.x, u.y);
+        Render.drawTown(ctx, u, st, z);
+        ctx.restore();
+        continue;
+      }
+      const info = data[u.type];
+      const img = info && Render.imgs[u.type];
+      const base = info ? Math.max(info.w, info.h) : 16;
+      // размер на экране: уменьшается при отдалении, но не меньше 8 и не больше 54 px
+      const px = Math.min(62, Math.max(9, base * 3.5 * z)) * (info && info.scale ? info.scale : 1);
+      const s = px / z / base; // мировых единиц на пиксель спрайта
+      ctx.save();
+      ctx.translate(u.x, u.y);
+      const rr = px * 0.46 / z;
+      ctx.beginPath();
+      ctx.ellipse(0, rr * 0.3, rr, rr * 0.5, 0, 0, TAU);
+      ctx.fillStyle = 'rgba(0,0,0,.22)';
+      ctx.fill();
+      if (img && img.complete && img.naturalWidth) {
+        const fr = info.frames > 1 ? ((Math.round(((u.hdg || 0) / (Math.PI * 2)) * info.frames) % info.frames) + info.frames) % info.frames : 0;
+        const dw = info.w * s, dh = info.h * s;
+        ctx.drawImage(img, fr * info.w, 0, info.w, info.h, -dw / 2, -dh / 2, dw, dh);
+      } else {
+        ctx.beginPath(); ctx.arc(0, 0, rr * 0.8, 0, TAU);
+        ctx.fillStyle = col; ctx.fill();
+      }
+      // точка владельца под юнитом
+      if (px > 12) {
+        ctx.beginPath();
+        ctx.arc(0, rr * 0.62, Math.max(1.6 / z, px * 0.075 / z), 0, TAU);
+        ctx.fillStyle = col;
+        ctx.strokeStyle = 'rgba(0,0,0,.55)';
+        ctx.lineWidth = 1.2 / z;
+        ctx.fill(); ctx.stroke();
+      }
+      ctx.restore();
     }
+    ctx.restore();
   };
 
   Render.icon = function (ctx, x, y, scale, type, col, sel) {

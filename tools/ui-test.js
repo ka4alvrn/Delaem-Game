@@ -82,7 +82,10 @@ JSDOM.fromURL('http://127.0.0.1:' + port + '/index.html', {
   const [sx, sy] = w.Render.toScreen(fra.cen[0], fra.cen[1]);
   ev('pointerdown', sx, sy); ev('pointerup', sx, sy);
   await sleep(120);
-  check($('#country').classList.contains('open'), 'карточка страны открылась');
+  check(!$('#country').classList.contains('open') && $('#tap-hint'), 'первое касание — только выделение');
+  ev('pointerdown', sx, sy); ev('pointerup', sx, sy);
+  await sleep(160);
+  check($('#country').classList.contains('open'), 'карточка страны открылась со второго касания');
   check($('#country').innerHTML.includes('Франция'), 'в карточке Франция');
 
   // вкладки
@@ -117,7 +120,7 @@ JSDOM.fromURL('http://127.0.0.1:' + port + '/index.html', {
   check(menuItems.length >= 6, 'пунктов меню: ' + menuItems.length);
   menuItems.find(b => b.dataset.m === 'settings').click();
   await sleep(60);
-  check(doc.querySelectorAll('[data-s]').length === 7, 'переключателей настроек: ' + doc.querySelectorAll('[data-s]').length);
+  check(doc.querySelectorAll('[data-s]').length === 8, 'переключателей настроек: ' + doc.querySelectorAll('[data-s]').length);
   doc.querySelector('[data-s="sound"]').click();
   w.UI.closeModal();
 
