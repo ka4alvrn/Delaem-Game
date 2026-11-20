@@ -10,6 +10,12 @@
 
 Работает офлайн, без сборки и без зависимостей: один `index.html` + `style.css` + `js/`.
 
+<p align="center">
+  <img src="docs/start.png" width="240" alt="Стартовый экран">
+  <img src="docs/map.png" width="240" alt="Карта 1942 года">
+  <img src="docs/country.png" width="240" alt="Карточка страны">
+</p>
+
 ---
 
 ## Как запустить
