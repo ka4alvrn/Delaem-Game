@@ -84,9 +84,12 @@
     const w = App.world;
     if (!w) return;
     const d = U.dayToDate(w.day, w.startYear);
-    UI.el.date.textContent = d.day + ' ' + U.MONTHS[d.month] + ' ' + d.year;
+    const narrow = (Render.W || window.innerWidth) < 420;
+    UI.el.date.textContent = narrow
+      ? d.day + ' ' + U.MONTHS[d.month].slice(0, 3) + ' ' + d.year
+      : d.day + ' ' + U.MONTHS[d.month] + ' ' + d.year;
     const eraIdx = World.eraIndex(d.year);
-    UI.el.era.textContent = App.pol.ERA_LABEL[eraIdx] + ' · эпоха ' + (eraIdx + 1) + '/7';
+    UI.el.era.textContent = App.pol.ERA_LABEL[eraIdx] + ' · ' + (eraIdx + 1) + '/7';
     U.qa('.spd').forEach(b => b.classList.toggle('on', +b.dataset.speed === App.speed));
     if (UI.tick++ % 8 === 0) UI.drawMinimap();
   };
@@ -170,6 +173,7 @@
     App.sel = id;
     UI.el.country.classList.add('open');
     if (UI.el.ticker) UI.el.ticker.classList.add('hidden');
+    document.body.classList.add('panel-open');
     UI.renderCountry();
     UI.ensureVisible(st);
   };
@@ -195,6 +199,7 @@
   UI.closeCountry = function () {
     UI.el.country.classList.remove('open');
     if (UI.el.ticker) UI.el.ticker.classList.remove('hidden');
+    document.body.classList.remove('panel-open');
   };
 
   UI.refreshCountry = function () {
