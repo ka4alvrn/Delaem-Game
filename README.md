@@ -22,9 +22,10 @@
 
 ### Вариант 1. GitHub Pages (телефон)
 
-1. Запушьте репозиторий на GitHub.
-2. **Settings → Pages → Source: Deploy from a branch → `main` / `(root)`**.
-3. Откройте `https://<ваш-логин>.github.io/<репозиторий>/` с телефона.
+1. Репозиторий уже на GitHub (`ka4alvrn/Delaem-Game`, ветка `main`).
+2. **Settings → Pages → Source: Deploy from a branch → Branch: `main`, папка `/ (root)` → Save.**
+   (Автоматически включить Pages из кода нельзя: GitHub требует прав администратора репозитория.)
+3. Через минуту откройте `https://ka4alvrn.github.io/Delaem-Game/` с телефона.
 4. «Поделиться → На экран «Домой»» — игра запустится как приложение (PWA-манифест и иконка уже есть).
 
 ### Вариант 2. Локально
