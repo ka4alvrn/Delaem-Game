@@ -1,0 +1,21 @@
+# исходники данных и инструменты разработки (скачиваются заново)
+tools/node_modules/
+tools/package-lock.json
+tools/*.tar.gz
+tools/historical-basemaps-master/
+tools/geo-countries-main/
+tools/country-json-master/
+tools/simp/
+tools/*.geojson
+tools/iso.js
+tools/popdbg.js
+tools/wdbg.js
+tools/blk.js
+tools/ec.js
+tools/ec2.js
+tools/shot.js
+
+# системный мусор
+.DS_Store
+Thumbs.db
+*.log

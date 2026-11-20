@@ -1,0 +1,15 @@
+{
+  "name": "Земля 1942 — песочница истории",
+  "short_name": "Земля 1942",
+  "description": "Бог-наблюдатель в песочнице истории: 1942 год — наши дни, реальные границы, войны, экономика и катастрофы.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#060e17",
+  "theme_color": "#071019",
+  "lang": "ru",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
